@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up | Task Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .card {
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      width: 380px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+    label { font-weight: 600; }
+    .btn-primary {
+      background-color: #6366F1;
+      color: white;
+      transition: 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: #4F46E5;
+    }
+    /* Hide Django default help text */
+    .helptext, ul { display: none !important; }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h2 class="text-2xl font-bold text-center mb-6">Create Account</h2>
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+
+      <!-- USERNAME -->
+      <div>
+        <label>Username</label>
+        {{ form.username }}
+      </div>
+
+      <!-- PASSWORD -->
+      <div>
+        <label>Password</label>
+        {{ form.password1 }}
+      </div>
+
+      <!-- CONFIRM PASSWORD -->
+      <div>
+        <label>Confirm Password</label>
+        {{ form.password2 }}
+      </div>
+
+      {% if form.errors %}
+        <p class="text-red-500 text-sm text-center mt-2">
+          {{ form.errors }}
+        </p>
+      {% endif %}
+
+      <button type="submit"
+        class="btn-primary w-full py-2 rounded-md mt-2 font-medium">
+        Sign Up
+      </button>
+    </form>
+
+    <p class="text-center mt-4 text-sm">
+      Already have an account?
+      <a href="{% url 'login' %}" class="text-indigo-600 font-medium hover:underline">
+        Login
+      </a>
+    </p>
+  </div>
+</body>
+</html>
