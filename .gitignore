@@ -52,8 +52,8 @@ build/
 # ==========================
 
 # DO NOT UPLOAD these runtime Django folders
-SE_PROJECT/TaskManager/staticfiles/
-SE_PROJECT/TaskManager/media/
+SE_project/TaskManager/staticfiles/
+SE_project/TaskManager/media/
 
 # Cache
 *.cache
