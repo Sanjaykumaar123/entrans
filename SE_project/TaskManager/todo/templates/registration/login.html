@@ -67,11 +67,14 @@
     </form>
 
     <div class="mt-5 text-center">
-      <p class="text-sm text-gray-500">
-        Don’t have an account? <a href="#" class="text-indigo-600 font-medium hover:underline">Contact Admin</a>
-      </p>
-    </div>
-  </div>
+  <p class="text-sm text-gray-500">
+    Don’t have an account?
+    <a href="{% url 'signup' %}" class="text-indigo-600 font-medium hover:underline">
+      Sign up
+    </a>
+  </p>
+</div>
+
 
 </body>
 </html>
