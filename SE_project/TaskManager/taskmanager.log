@@ -1,0 +1,22 @@
+[2025-11-12 12:34:59,371] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-12 12:35:26,378] INFO django.utils.autoreload: C:\Users\HP\ENTRANS\SE project\TaskManager\todo\models.py changed, reloading.
+[2025-11-12 12:35:29,537] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-12 12:35:44,415] INFO django.utils.autoreload: C:\Users\HP\ENTRANS\SE project\TaskManager\todo\serializers.py changed, reloading.
+[2025-11-12 12:35:46,408] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-12 12:36:12,343] INFO django.utils.autoreload: C:\Users\HP\ENTRANS\SE project\TaskManager\todo\views.py changed, reloading.
+[2025-11-12 12:36:14,503] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-12 12:36:47,284] INFO django.utils.autoreload: C:\Users\HP\ENTRANS\SE project\TaskManager\todo\urls.py changed, reloading.
+[2025-11-12 12:36:49,003] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-12 12:37:03,848] INFO django.utils.autoreload: C:\Users\HP\ENTRANS\SE project\TaskManager\taskmanager\urls.py changed, reloading.
+[2025-11-12 12:37:06,069] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-12 12:37:54,416] INFO django.utils.autoreload: C:\Users\HP\ENTRANS\SE project\TaskManager\todo\admin.py changed, reloading.
+[2025-11-12 12:37:59,903] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-11-12 12:45:12,050] INFO django.server: "GET / HTTP/1.1" 302 0
+[2025-11-12 12:45:12,200] INFO django.server: "GET /accounts/login/?next=/ HTTP/1.1" 200 2428
+[2025-11-12 12:45:30,962] INFO django.server: "POST /accounts/login/?next=/ HTTP/1.1" 302 0
+[2025-11-12 12:45:31,451] WARNING django.security.csrf: Forbidden (CSRF token from POST incorrect.): /accounts/login/
+[2025-11-12 12:45:31,453] WARNING django.server: "POST /accounts/login/?next=/ HTTP/1.1" 403 2503
+[2025-11-12 12:45:31,705] INFO django.server: - Broken pipe from ('127.0.0.1', 65460)
+[2025-11-12 12:45:37,181] WARNING django.security.csrf: Forbidden (CSRF token from POST incorrect.): /accounts/login/
+[2025-11-12 12:45:37,182] WARNING django.server: "POST /accounts/login/?next=/ HTTP/1.1" 403 2503
+[2025-11-12 12:47:54,219] INFO django.utils.autoreload: C:\Users\HP\ENTRANS\SE project\TaskManager\taskmanager\settings.py changed, reloading.

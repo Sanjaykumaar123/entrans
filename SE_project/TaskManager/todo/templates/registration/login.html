@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | Task Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #eef2ff, #f8fafc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 400px;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+    .btn-primary {
+      background-color: #6366F1;
+      color: white;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: #4F46E5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">🔑 Welcome Back</h2>
+    <p class="text-center text-sm text-gray-500 mb-6">Login to manage your tasks efficiently</p>
+
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+      {% if form.errors %}
+      <p class="text-red-500 text-sm text-center">Invalid username or password.</p>
+      {% endif %}
+
+      <div>
+        <label class="block text-gray-700 text-sm font-medium mb-1">Username</label>
+        <input type="text" name="username" autofocus required
+               class="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+               placeholder="Enter your username">
+      </div>
+
+      <div>
+        <label class="block text-gray-700 text-sm font-medium mb-1">Password</label>
+        <input type="password" name="password" required
+               class="w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+               placeholder="Enter your password">
+      </div>
+
+      <button type="submit" class="btn-primary w-full rounded-md py-2 font-semibold">Login</button>
+    </form>
+
+    <div class="mt-5 text-center">
+      <p class="text-sm text-gray-500">
+        Don’t have an account? <a href="#" class="text-indigo-600 font-medium hover:underline">Contact Admin</a>
+      </p>
+    </div>
+  </div>
+
+</body>
+</html>

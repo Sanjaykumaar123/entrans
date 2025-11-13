@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Task Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      color: #111827;
+      transition: background 0.3s, color 0.3s;
+    }
+    .dark-mode {
+      background: #0f172a;
+      color: #f8fafc;
+    }
+    .card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+    .dark-mode .card {
+      background: #1e293b;
+    }
+    .btn-primary {
+      background-color: #6366F1;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #4F46E5;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen">
+  <!-- HEADER -->
+  <header class="flex justify-between items-center bg-white shadow px-8 py-4 dark-mode:bg-slate-800">
+    <h1 class="text-3xl font-bold text-gray-800 dark-mode:text-white">Task Manager</h1>
+    <div class="flex items-center gap-4">
+      <span class="text-gray-600 dark-mode:text-gray-300">Welcome, {{ user.username }}!</span>
+      <form id="logoutForm" method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="text-indigo-600 font-semibold hover:underline">Logout</button>
+      </form>
+      <button id="themeToggle" class="border px-3 py-1 rounded-md text-sm text-gray-700 hover:bg-gray-100 dark-mode:text-gray-200">
+        🌙 Dark Mode
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="max-w-7xl mx-auto px-6 py-10">
+    <!-- OVERVIEW -->
+    <section class="card p-8 mb-10">
+      <h2 class="text-xl font-semibold mb-6">Task Progress Overview</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div class="bg-indigo-50 rounded-lg py-5 dark-mode:bg-slate-700">
+          <h3>Total Tasks</h3>
+          <p id="totalCount" class="text-3xl font-bold text-indigo-600">0</p>
+        </div>
+        <div class="bg-green-50 rounded-lg py-5 dark-mode:bg-slate-700">
+          <h3>Completed</h3>
+          <p id="doneCount" class="text-3xl font-bold text-green-600">0</p>
+        </div>
+        <div class="bg-yellow-50 rounded-lg py-5 dark-mode:bg-slate-700">
+          <h3>Pending</h3>
+          <p id="pendingCount" class="text-3xl font-bold text-yellow-500">0</p>
+        </div>
+        <div class="bg-purple-50 rounded-lg py-5 dark-mode:bg-slate-700">
+          <h3>Completion %</h3>
+          <p id="completionRate" class="text-3xl font-bold text-purple-600">0%</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TASKS SECTION -->
+    <div class="grid md:grid-cols-3 gap-8">
+      <!-- LEFT: TASKS LIST -->
+      <section class="md:col-span-2">
+        <div class="flex justify-between items-center mb-4">
+          <input id="searchBox" class="border rounded-md px-4 py-2 w-1/2" placeholder="Search tasks..." />
+          <div class="flex gap-2">
+            <select id="priorityFilter" class="border rounded-md px-3 py-2">
+              <option value="all">All Priorities</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+            <button id="applyFilter" class="btn-primary rounded-md px-4 py-2 text-sm font-medium">Apply</button>
+            <button id="clearFilter" class="border border-gray-300 rounded-md px-4 py-2 text-sm font-medium hover:bg-gray-50">Clear</button>
+          </div>
+        </div>
+
+        <ul id="taskList" class="space-y-4"></ul>
+      </section>
+
+      <!-- RIGHT: ADD NEW TASK -->
+      <aside class="card p-6">
+        <h3 class="text-lg font-semibold mb-4 text-gray-800 dark-mode:text-white">Add New Task</h3>
+        <input id="titleInput" type="text" placeholder="Title" class="border rounded-md w-full px-3 py-2 mb-3">
+        <textarea id="descInput" placeholder="Description" class="border rounded-md w-full px-3 py-2 mb-3"></textarea>
+        <select id="priorityInput" class="border rounded-md w-full px-3 py-2 mb-3">
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+        <input id="dueInput" type="date" class="border rounded-md w-full px-3 py-2 mb-3">
+        <button id="addBtn" class="btn-primary w-full font-semibold py-2 rounded-md">Create Task</button>
+      </aside>
+    </div>
+
+    <!-- CHART SECTION -->
+    <div class="card mt-10 p-8 flex flex-col items-center justify-center">
+      <h3 class="text-lg font-semibold mb-4 text-gray-700">Task Distribution</h3>
+      <div class="relative w-64 h-64 md:w-72 md:h-72">
+        <canvas id="taskChart"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <!-- SCRIPT -->
+  <script>
+    const apiURL = "/api/tasks/";
+    let tasks = [];
+    let chart;
+
+    const csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken'))?.split('=')[1];
+
+    async function fetchTasks() {
+      const res = await fetch(apiURL, { credentials: 'same-origin' });
+      if (!res.ok) return;
+      const data = await res.json();
+      tasks = data;
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+      const search = document.getElementById("searchBox").value.toLowerCase();
+      const filter = document.getElementById("priorityFilter").value;
+
+      const filtered = tasks.filter(t =>
+        t.title.toLowerCase().includes(search) &&
+        (filter === "all" || t.priority === filter)
+      );
+
+      filtered.forEach(task => {
+        const li = document.createElement("li");
+        li.className = "card p-4 flex justify-between items-center";
+        li.innerHTML = `
+          <div>
+            <h4 class="font-semibold text-gray-800 ${task.completed ? 'line-through text-gray-400' : ''}">
+              ${task.title}
+            </h4>
+            <p class="text-sm text-gray-500">${task.description || ''}</p>
+            <div class="flex gap-3 items-center mt-1">
+              <span class="px-3 py-1 text-xs rounded-full ${
+                task.priority === 'High' ? 'bg-red-100 text-red-700' :
+                task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                'bg-green-100 text-green-700'
+              }">${task.priority}</span>
+              ${task.due_date ? `<span class="text-xs text-gray-400">Due: ${task.due_date}</span>` : ''}
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="toggleComplete(${task.id}, ${task.completed})" class="text-green-600 hover:text-green-800">✔</button>
+            <button onclick="deleteTask(${task.id})" class="text-red-500 hover:text-red-700">🗑</button>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+
+      updateStats();
+    }
+
+    async function addTask() {
+      const title = document.getElementById("titleInput").value.trim();
+      const description = document.getElementById("descInput").value.trim();
+      const priority = document.getElementById("priorityInput").value;
+      const due_date = document.getElementById("dueInput").value;
+      if (!title) return alert("Please enter a task title.");
+
+      await fetch(apiURL, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({ title, description, priority, due_date })
+      });
+
+      document.getElementById("titleInput").value = "";
+      document.getElementById("descInput").value = "";
+      document.getElementById("dueInput").value = "";
+      fetchTasks();
+    }
+
+    async function toggleComplete(id, completed) {
+      await fetch(`${apiURL}${id}/`, {
+        method: "PATCH",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+        body: JSON.stringify({ completed: !completed })
+      });
+      fetchTasks();
+    }
+
+    async function deleteTask(id) {
+      await fetch(`${apiURL}${id}/`, {
+        method: "DELETE",
+        credentials: "same-origin",
+        headers: { "X-CSRFToken": csrftoken }
+      });
+      fetchTasks();
+    }
+
+    function updateStats() {
+      const total = tasks.length;
+      const done = tasks.filter(t => t.completed).length;
+      const pending = total - done;
+      const percent = total ? Math.round((done / total) * 100) : 0;
+
+      document.getElementById("totalCount").innerText = total;
+      document.getElementById("doneCount").innerText = done;
+      document.getElementById("pendingCount").innerText = pending;
+      document.getElementById("completionRate").innerText = `${percent}%`;
+
+      const ctx = document.getElementById('taskChart').getContext('2d');
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Completed', 'Pending'],
+          datasets: [{
+            data: [done, pending],
+            backgroundColor: ['#10B981', '#FBBF24'],
+            borderWidth: 1,
+            hoverOffset: 10,
+            cutout: '70%'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+    });
+
+    document.getElementById("applyFilter").addEventListener("click", renderTasks);
+    document.getElementById("clearFilter").addEventListener("click", () => {
+      document.getElementById("priorityFilter").value = "all";
+      document.getElementById("searchBox").value = "";
+      renderTasks();
+    });
+
+    document.getElementById("addBtn").addEventListener("click", addTask);
+    document.getElementById("searchBox").addEventListener("input", renderTasks);
+
+    fetchTasks();
+  </script>
+</body>
+</html>
