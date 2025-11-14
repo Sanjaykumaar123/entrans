@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Task Manager</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -24,20 +24,23 @@
     }
     .dark-mode .card {
       background: #1e293b;
+      color: white;
     }
   </style>
 </head>
 
 <body class="min-h-screen">
+
   <!-- HEADER -->
   <header class="flex justify-between items-center bg-white shadow px-8 py-4">
     <h1 class="text-3xl font-bold text-gray-800">Task Manager</h1>
+
     <div class="flex items-center gap-4">
       <span class="text-gray-600">Welcome, {{ user.username }}!</span>
-      <form id="logoutForm" method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit" class="text-indigo-600 font-semibold hover:underline">Logout</button>
-      </form>
+
+      <a href="{% url 'logout' %}" class="text-indigo-600 font-semibold hover:underline">
+        Logout
+      </a>
 
       <button id="themeToggle" class="border px-3 py-1 rounded-md text-sm text-gray-700">
         🌙 Dark Mode
@@ -51,19 +54,23 @@
     <!-- OVERVIEW -->
     <section class="card p-8 mb-10">
       <h2 class="text-xl font-semibold mb-6">Task Progress Overview</h2>
+
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
         <div class="bg-indigo-50 rounded-lg py-5">
           <h3>Total Tasks</h3>
           <p id="totalCount" class="text-3xl font-bold text-indigo-600">0</p>
         </div>
+
         <div class="bg-green-50 rounded-lg py-5">
           <h3>Completed</h3>
           <p id="doneCount" class="text-3xl font-bold text-green-600">0</p>
         </div>
+
         <div class="bg-yellow-50 rounded-lg py-5">
           <h3>Pending</h3>
           <p id="pendingCount" class="text-3xl font-bold text-yellow-500">0</p>
         </div>
+
         <div class="bg-purple-50 rounded-lg py-5">
           <h3>Completion %</h3>
           <p id="completionRate" class="text-3xl font-bold text-purple-600">0%</p>
@@ -74,10 +81,11 @@
     <!-- TASKS SECTION -->
     <div class="grid md:grid-cols-3 gap-8">
 
-      <!-- LEFT: TASKS LIST -->
+      <!-- TASK LIST -->
       <section class="md:col-span-2">
         <div class="flex justify-between items-center mb-4">
-          <input id="searchBox" class="border rounded-md px-4 py-2 w-1/2" placeholder="Search tasks..." />
+          <input id="searchBox" class="border rounded-md px-4 py-2 w-1/2" placeholder="Search tasks...">
+
           <div class="flex gap-2">
             <select id="priorityFilter" class="border rounded-md px-3 py-2">
               <option value="all">All Priorities</option>
@@ -85,7 +93,9 @@
               <option value="Medium">Medium</option>
               <option value="Low">Low</option>
             </select>
+
             <button id="applyFilter" class="bg-indigo-600 text-white rounded-md px-4 py-2 text-sm">Apply</button>
+
             <button id="clearFilter" class="border rounded-md px-4 py-2 text-sm hover:bg-gray-50">Clear</button>
           </div>
         </div>
@@ -93,36 +103,43 @@
         <ul id="taskList" class="space-y-4"></ul>
       </section>
 
-      <!-- RIGHT: ADD NEW TASK -->
+      <!-- ADD TASK -->
       <aside class="card p-6">
         <h3 class="text-lg font-semibold mb-4">Add New Task</h3>
+
         <input id="titleInput" type="text" placeholder="Title" class="border rounded-md w-full px-3 py-2 mb-3">
+
         <textarea id="descInput" placeholder="Description" class="border rounded-md w-full px-3 py-2 mb-3"></textarea>
+
         <select id="priorityInput" class="border rounded-md w-full px-3 py-2 mb-3">
           <option>High</option>
           <option>Medium</option>
           <option>Low</option>
         </select>
+
         <input id="dueInput" type="date" class="border rounded-md w-full px-3 py-2 mb-3">
-        <button id="addBtn" class="bg-indigo-600 text-white w-full py-2 rounded-md font-semibold">Create Task</button>
+
+        <button id="addBtn" class="bg-indigo-600 text-white w-full py-2 rounded-md font-semibold">
+          Create Task
+        </button>
       </aside>
+
     </div>
 
     <!-- CHART -->
     <div class="card mt-10 p-8 flex flex-col items-center justify-center">
-      <h3 class="text-lg font-semibold mb-4 text-gray-700">Task Distribution</h3>
+      <h3 class="text-lg font-semibold mb-4">Task Distribution</h3>
+
       <div class="relative w-64 h-64 md:w-72 md:h-72">
         <canvas id="taskChart"></canvas>
       </div>
     </div>
+
   </main>
 
   <!-- SCRIPT -->
   <script>
-
-    // -----------------------------
-    //  CSRF FUNCTION (Important)
-    // -----------------------------
+    // CSRF GETTER
     function getCookie(name) {
       let cookieValue = null;
       if (document.cookie !== '') {
@@ -143,24 +160,12 @@
     let tasks = [];
     let chart;
 
-    // -----------------------------
-    //  FETCH TASKS
-    // -----------------------------
     async function fetchTasks() {
-      const res = await fetch(apiURL, {
-        method: "GET",
-        credentials: "same-origin",
-        headers: { "X-CSRFToken": csrftoken }
-      });
-
-      if (!res.ok) return;
+      const res = await fetch(apiURL, { credentials: "same-origin" });
       tasks = await res.json();
       renderTasks();
     }
 
-    // -----------------------------
-    //  RENDER TASK LIST
-    // -----------------------------
     function renderTasks() {
       const list = document.getElementById("taskList");
       list.innerHTML = "";
@@ -176,6 +181,7 @@
       filtered.forEach(task => {
         const li = document.createElement("li");
         li.className = "card p-4 flex justify-between items-center";
+
         li.innerHTML = `
           <div>
             <h4 class="font-semibold ${task.completed ? 'line-through text-gray-400' : ''}">
@@ -197,56 +203,42 @@
             <button onclick="deleteTask(${task.id})" class="text-red-500">🗑</button>
           </div>
         `;
+
         list.appendChild(li);
       });
 
       updateStats();
     }
 
-    // -----------------------------
-    //  ADD TASK
-    // -----------------------------
     async function addTask() {
-      const title = document.getElementById("titleInput").value.trim();
-      const description = document.getElementById("descInput").value.trim();
-      const priority = document.getElementById("priorityInput").value;
-      const due_date = document.getElementById("dueInput").value;
-
-      if (!title) return alert("Please enter a task title.");
+      const title = document.getElementById("titleInput").value;
+      if (!title) return alert("Please enter a title.");
 
       await fetch(apiURL, {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-        body: JSON.stringify({ title, description, priority, due_date })
+        body: JSON.stringify({
+          title,
+          description: document.getElementById("descInput").value,
+          priority: document.getElementById("priorityInput").value,
+          due_date: document.getElementById("dueInput").value
+        })
       });
 
-      document.getElementById("titleInput").value = "";
-      document.getElementById("descInput").value = "";
-      document.getElementById("dueInput").value = "";
       fetchTasks();
     }
 
-    // -----------------------------
-    //  TOGGLE COMPLETE
-    // -----------------------------
     async function toggleComplete(id, completed) {
       await fetch(`${apiURL}${id}/`, {
         method: "PATCH",
         credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken
-        },
+        headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
         body: JSON.stringify({ completed: !completed })
       });
-
       fetchTasks();
     }
 
-    // -----------------------------
-    //  DELETE TASK
-    // -----------------------------
     async function deleteTask(id) {
       await fetch(`${apiURL}${id}/`, {
         method: "DELETE",
@@ -256,19 +248,16 @@
       fetchTasks();
     }
 
-    // -----------------------------
-    //  STATS + CHART UPDATE
-    // -----------------------------
     function updateStats() {
       const total = tasks.length;
       const done = tasks.filter(t => t.completed).length;
       const pending = total - done;
-      const percent = total > 0 ? Math.floor((done / total) * 100) : 0;
+      const percent = total ? Math.round(done / total * 100) : 0;
 
       document.getElementById("totalCount").innerText = total;
       document.getElementById("doneCount").innerText = done;
       document.getElementById("pendingCount").innerText = pending;
-      document.getElementById("completionRate").innerText = `${percent}%`;
+      document.getElementById("completionRate").innerText = percent + "%";
 
       const ctx = document.getElementById("taskChart").getContext("2d");
       if (chart) chart.destroy();
@@ -284,26 +273,23 @@
             cutout: "70%"
           }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: { responsive: true }
       });
     }
 
-    // -----------------------------
-    //  EVENT LISTENERS
-    // -----------------------------
+    // EVENT LISTENERS
     document.getElementById("addBtn").addEventListener("click", addTask);
-    document.getElementById("searchBox").addEventListener("input", renderTasks);
     document.getElementById("applyFilter").addEventListener("click", renderTasks);
+    document.getElementById("searchBox").addEventListener("input", renderTasks);
     document.getElementById("clearFilter").addEventListener("click", () => {
       document.getElementById("priorityFilter").value = "all";
       document.getElementById("searchBox").value = "";
       renderTasks();
     });
 
-    // Theme Toggle
-    document.getElementById("themeToggle").addEventListener("click", () => {
-      document.body.classList.toggle("dark-mode");
-    });
+    document.getElementById("themeToggle").addEventListener("click", () =>
+      document.body.classList.toggle("dark-mode")
+    );
 
     fetchTasks();
   </script>
