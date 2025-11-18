@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
 from todo.views import home, signup_view, logout_view
 
 urlpatterns = [
@@ -9,11 +10,17 @@ urlpatterns = [
 
     path('api/', include('todo.urls')),
 
-    # Custom Login + Signup
+    # LOGIN
     path('accounts/login/', 
-         include('django.contrib.auth.urls')),
+         auth_views.LoginView.as_view(template_name='registration/login.html'),
+         name='login'),
+
+    # SIGNUP
     path('accounts/signup/', signup_view, name='signup'),
 
-    # Custom Logout (override Django default)
+    # LOGOUT
     path('accounts/logout/', logout_view, name='logout'),
+
+    # Include Django auth URLs (password reset etc.)
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
