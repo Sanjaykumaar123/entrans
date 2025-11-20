@@ -61,3 +61,8 @@ SE_project/TaskManager/media/
 
 # Python byte-compiled files
 __pycache__/
+# Ignore ML model files
+*.joblib
+*.pkl
+predictions.db
+

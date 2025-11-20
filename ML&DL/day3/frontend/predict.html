@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>House Price Prediction</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg-main: #020617;
+      --bg-card: #020617;
+      --bg-panel: #020617;
+      --bg-chip: #0f172a;
+      --accent: #0ea5e9;
+      --accent-soft: rgba(56, 189, 248, 0.25);
+      --accent-strong: #22d3ee;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --danger: #f97373;
+      --border-subtle: rgba(148, 163, 184, 0.35);
+      --shadow-soft: 0 30px 80px rgba(15, 23, 42, 0.9);
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+      --radius-full: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Poppins", sans-serif;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.15), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(94, 234, 212, 0.1), transparent 50%),
+        radial-gradient(circle at 100% 0%, rgba(37, 99, 235, 0.18), transparent 55%),
+        radial-gradient(circle at 0% 100%, rgba(251, 113, 133, 0.16), transparent 50%),
+        linear-gradient(135deg, #020617, #020617 40%, #020617 100%);
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 24px;
+    }
+
+    /* subtle grid overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1400px;
+      margin: auto;
+      border-radius: 28px;
+      background: radial-gradient(circle at 0 0, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 20px 24px 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* glow halo */
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.12), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(251, 113, 133, 0.1), transparent 55%);
+      opacity: 0.7;
+      z-index: -1;
+    }
+
+    /* TOP BAR */
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 14px;
+      background: radial-gradient(circle at 30% 20%, #38bdf8, #0ea5e9 40%, #0369a1 80%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 0 1px rgba(56, 189, 248, 0.4),
+        0 10px 30px rgba(8, 47, 73, 0.9);
+    }
+
+    .brand-icon span {
+      font-size: 18px;
+    }
+
+    .brand-text-main {
+      font-size: 15px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .brand-text-sub {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .brand-labels {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tag-chip {
+      margin-top: 6px;
+      align-self: flex-start;
+      padding: 2px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-strong);
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.15), transparent 60%);
+    }
+
+    /* NAV */
+
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 3px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+    }
+
+    .nav-tab {
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.18s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-tab::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.2), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.18s ease-out;
+      pointer-events: none;
+    }
+
+    .nav-tab span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.7);
+    }
+
+    .nav-tab:hover {
+      color: var(--text-main);
+    }
+
+    .nav-tab:hover::before {
+      opacity: 1;
+    }
+
+    .nav-tab.active {
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.5), rgba(59, 130, 246, 0.75));
+      color: #0b1220;
+      box-shadow:
+        0 0 0 1px rgba(125, 211, 252, 0.8),
+        0 14px 30px rgba(8, 47, 73, 0.9);
+    }
+
+    .nav-tab.active span.dot {
+      background: #0b1120;
+    }
+
+    /* LAYOUT */
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.1fr);
+      gap: 22px;
+      margin-top: 12px;
+      min-height: 480px;
+    }
+
+    .panel {
+      background: radial-gradient(circle at 0 0, rgba(24, 35, 58, 0.9), rgba(15, 23, 42, 0.98));
+      border-radius: var(--radius-xl);
+      padding: 20px 22px 22px;
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.95);
+      position: relative;
+    }
+
+    .panel-header-label {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(148, 163, 184, 0.85);
+      margin-bottom: 4px;
+    }
+
+    .panel-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .panel-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .panel-subtitle strong {
+      color: var(--accent-strong);
+    }
+
+    /* FORM */
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 16px;
+      margin-bottom: 18px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    .field-label-row span.hint {
+      color: rgba(148, 163, 184, 0.65);
+      font-size: 10px;
+    }
+
+    .field-input-wrap {
+      position: relative;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px 11px;
+      border-radius: 11px;
+      border: 1px solid rgba(51, 65, 85, 0.95);
+      background: radial-gradient(circle at 0 0, rgba(15, 23, 42, 0.7), #020617);
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      transition: all 0.15s ease-out;
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.95);
+    }
+
+    input[type="number"]::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+    }
+
+    input[type="number"]:focus {
+      border-color: rgba(56, 189, 248, 0.9);
+      box-shadow:
+        0 0 0 1px rgba(56, 189, 248, 0.5),
+        0 0 0 4px rgba(56, 189, 248, 0.18);
+      background: radial-gradient(circle at 0 0, rgba(15, 23, 42, 0.9), #020617);
+    }
+
+    .field-unit {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: rgba(148, 163, 184, 0.8);
+    }
+
+    /* BUTTON + MODEL TAG */
+
+    .actions-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 4px;
+    }
+
+    .primary-btn {
+      border-radius: var(--radius-full);
+      border: none;
+      padding: 10px 26px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #0b1120;
+      background: radial-gradient(circle at 0 0, #22d3ee, #0ea5e9 50%, #0284c7 100%);
+      box-shadow:
+        0 0 0 1px rgba(8, 47, 73, 0.9),
+        0 14px 35px rgba(8, 47, 73, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.12s ease-out, box-shadow 0.12s ease-out, filter 0.12s ease-out;
+    }
+
+    .primary-btn:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+      box-shadow:
+        0 0 0 1px rgba(8, 47, 73, 1),
+        0 18px 42px rgba(8, 47, 73, 1);
+    }
+
+    .primary-btn:active {
+      transform: translateY(0);
+      box-shadow:
+        0 0 0 1px rgba(15, 23, 42, 1),
+        0 10px 26px rgba(15, 23, 42, 1);
+    }
+
+    .primary-btn span.icon {
+      font-size: 14px;
+    }
+
+    .model-tag {
+      font-size: 11px;
+      color: rgba(148, 163, 184, 0.95);
+      border-radius: 999px;
+      padding: 6px 12px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .model-tag span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+    }
+
+    /* OUTPUT PANEL */
+
+    .price-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 8px 0 4px;
+    }
+
+    .price-symbol {
+      font-size: 20px;
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    .price-value {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .price-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .chips-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      background: radial-gradient(circle at 0 0, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.98));
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .chip-label {
+      color: rgba(148, 163, 184, 0.9);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .chip-value {
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+
+    .explanation {
+      font-size: 12px;
+      line-height: 1.65;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .explanation strong {
+      color: var(--accent-strong);
+    }
+
+    .tips-title {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(148, 163, 184, 0.9);
+      margin-bottom: 4px;
+    }
+
+    .tips-list {
+      font-size: 12px;
+      color: var(--text-main);
+      padding-left: 18px;
+    }
+
+    .tips-list li {
+      margin-bottom: 5px;
+      color: var(--text-muted);
+    }
+
+    .tips-list li strong {
+      color: var(--accent-strong);
+    }
+
+    /* STATUS BAR */
+
+    .status-bar-wrapper {
+      margin-top: 12px;
+    }
+
+    .status-bar {
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: radial-gradient(circle at 0 0, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 1));
+      border: 1px solid rgba(30, 64, 175, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .status-label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 10px;
+      color: rgba(148, 163, 184, 0.85);
+    }
+
+    .status-value {
+      color: var(--accent-strong);
+      font-weight: 500;
+    }
+
+    .status-extra {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .shell {
+        padding: 18px 16px 20px;
+      }
+      body {
+        padding: 14px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .layout {
+        gap: 16px;
+      }
+      .panel {
+        padding: 16px 14px 18px;
+      }
+      .form-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .actions-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .nav-tabs {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .chips-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="brand">
+        <div class="brand-icon"><span>🏠</span></div>
+        <div class="brand-labels">
+          <div class="brand-text-main">HOUSING PRICE · NEON DASHBOARD</div>
+          <div class="brand-text-sub">Local Regression Model on King County Sales Data</div>
+          <div class="tag-chip">Prediction Console</div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <a href="descriptive.html" class="nav-tab">
+          <span class="dot"></span>
+          Descriptive
+        </a>
+        <a href="inferential.html" class="nav-tab">
+          <span class="dot"></span>
+          Inferential
+        </a>
+        <a href="predict.html" class="nav-tab active">
+          <span class="dot"></span>
+          Predict
+        </a>
+      </nav>
+    </header>
+
+    <!-- Main Layout -->
+    <main class="layout">
+
+      <!-- INPUT PANEL -->
+      <section class="panel">
+        <div class="panel-header-label">Input Panel · Features</div>
+
+        <div class="panel-title-row">
+          <h2 class="panel-title">House Features</h2>
+          <p class="panel-subtitle">
+            Enter realistic values for a property. The model estimates a fair market price based on <strong>historical sales</strong>.
+          </p>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <div class="field-label-row">
+              <span>Bedrooms</span>
+              <span class="hint">e.g. 2–5</span>
+            </div>
+            <div class="field-input-wrap">
+              <input id="bed" type="number" placeholder="2" min="0" step="1" />
+              <span class="field-unit">#</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label-row">
+              <span>Bathrooms</span>
+              <span class="hint">e.g. 1–4</span>
+            </div>
+            <div class="field-input-wrap">
+              <input id="bath" type="number" placeholder="1" min="0" step="0.25" />
+              <span class="field-unit">#</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label-row">
+              <span>Sqft Living</span>
+              <span class="hint">usable area</span>
+            </div>
+            <div class="field-input-wrap">
+              <input id="sqft" type="number" placeholder="1500" min="0" step="10" />
+              <span class="field-unit">sqft</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label-row">
+              <span>Latitude</span>
+              <span class="hint">≈ 47.x</span>
+            </div>
+            <div class="field-input-wrap">
+              <input id="lat" type="number" placeholder="47.5" step="0.0001" />
+              <span class="field-unit">°</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label-row">
+              <span>Longitude</span>
+              <span class="hint">≈ -122.x</span>
+            </div>
+            <div class="field-input-wrap">
+              <input id="long" type="number" placeholder="-122.3" step="0.0001" />
+              <span class="field-unit">°</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <button class="primary-btn" onclick="predict()">
+            <span class="icon">⚡</span>
+            <span>Predict Price</span>
+          </button>
+
+          <div class="model-tag">
+            <span class="dot"></span>
+            <span>Model: Gradient Boosted Regressor · Trained on King County Data</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- OUTPUT PANEL -->
+      <section class="panel">
+        <div class="panel-header-label">Output Panel · Prediction</div>
+
+        <div class="panel-title-row">
+          <h2 class="panel-title">Estimated House Price</h2>
+          <p class="panel-subtitle">
+            Includes a simple explanation of how the features influence <strong>this specific estimate</strong>.
+          </p>
+        </div>
+
+        <div class="price-value-row">
+          <span class="price-symbol">$</span>
+          <span id="priceValue" class="price-value">—</span>
+        </div>
+        <p id="priceNote" class="price-note">
+          Waiting for input… Provide values on the left and click <strong>Predict Price</strong>.
+        </p>
+
+        <div class="chips-row">
+          <div class="chip">
+            <span class="chip-label">Bedrooms</span>
+            <span id="chipBedrooms" class="chip-value">–</span>
+          </div>
+          <div class="chip">
+            <span class="chip-label">Bathrooms</span>
+            <span id="chipBathrooms" class="chip-value">–</span>
+          </div>
+          <div class="chip">
+            <span class="chip-label">Sqft Living</span>
+            <span id="chipSqft" class="chip-value">–</span>
+          </div>
+          <div class="chip">
+            <span class="chip-label">Latitude</span>
+            <span id="chipLat" class="chip-value">–</span>
+          </div>
+          <div class="chip">
+            <span class="chip-label">Longitude</span>
+            <span id="chipLong" class="chip-value">–</span>
+          </div>
+          <div class="chip">
+            <span class="chip-label">Model</span>
+            <span class="chip-value">Regression · House Prices</span>
+          </div>
+        </div>
+
+        <p id="explanation" class="explanation">
+          Once you run a prediction, this section will describe how
+          <strong>area</strong> and <strong>location</strong> contribute to the final price, based on patterns learned from the training data.
+        </p>
+
+        <div>
+          <div class="tips-title">Interpretation Tips</div>
+          <ul class="tips-list">
+            <li><strong>Higher sqft_living</strong> usually increases price more strongly than bedrooms alone.</li>
+            <li>
+              <strong>Location (lat, long)</strong> captures neighborhood quality and proximity to city centers.
+            </li>
+            <li>
+              <strong>Bathrooms + bedrooms</strong> together represent comfort level and convenience of the house.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Status Bar -->
+    <div class="status-bar-wrapper">
+      <div class="status-bar">
+        <div>
+          <div class="status-label">Run Status</div>
+          <div id="statusText" class="status-value">Waiting for input…</div>
+        </div>
+        <div class="status-extra" id="statusExtra">
+          The API runs locally at <strong>http://127.0.0.1:8000/predict</strong>. Each call logs the request in a SQLite table
+          named <code>predictions</code>.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    async function predict() {
+      const bed = Number(document.getElementById("bed").value);
+      const bath = Number(document.getElementById("bath").value);
+      const sqft = Number(document.getElementById("sqft").value);
+      const lat = Number(document.getElementById("lat").value);
+      const longVal = Number(document.getElementById("long").value);
+
+      const statusText = document.getElementById("statusText");
+      const statusExtra = document.getElementById("statusExtra");
+      const priceValue = document.getElementById("priceValue");
+      const priceNote = document.getElementById("priceNote");
+      const explanation = document.getElementById("explanation");
+
+      const chipBedrooms = document.getElementById("chipBedrooms");
+      const chipBathrooms = document.getElementById("chipBathrooms");
+      const chipSqft = document.getElementById("chipSqft");
+      const chipLat = document.getElementById("chipLat");
+      const chipLong = document.getElementById("chipLong");
+
+      statusText.textContent = "Sending request to model…";
+      priceNote.textContent = "Predicting…";
+      priceValue.textContent = "…";
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            n_bed: bed || null,
+            n_bath: bath || null,
+            sqft: sqft || null,
+            lat: lat || null,
+            long: longVal || null
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("API returned status " + response.status);
+        }
+
+        const data = await response.json();
+
+        const price = Number(data.predicted_price || 0);
+        const used = data.used_values || {};
+
+        priceValue.textContent = price ? price.toFixed(2) : "N/A";
+        priceNote.innerHTML =
+          "Approx. estimate based on properties in the dataset with similar " +
+          "<strong>size</strong> and <strong>location</strong>.";
+
+        chipBedrooms.textContent = used.bedrooms ?? "–";
+        chipBathrooms.textContent = used.bathrooms ?? "–";
+        chipSqft.textContent = used.sqft_living ?? "–";
+        chipLat.textContent = used.lat ?? "–";
+        chipLong.textContent = used.long ?? "–";
+
+        explanation.innerHTML =
+          "This price is computed by a regression model trained on historical sales. " +
+          "<strong>Living area (sqft_living)</strong> and <strong>location (lat/long)</strong> typically push the estimate " +
+          "higher, while bedrooms and bathrooms refine the comfort level but impact price slightly less.";
+
+        statusText.textContent = "Prediction complete";
+        statusExtra.textContent =
+          "Prediction stored with timestamp and input features in your local SQLite database (table: predictions).";
+      } catch (err) {
+        console.error(err);
+        statusText.textContent = "Prediction failed";
+        statusExtra.textContent = "Check that the FastAPI server is running on port 8000 and try again.";
+        priceNote.textContent = "Error: " + err;
+        priceValue.textContent = "—";
+      }
+    }
+  </script>
+</body>
+</html>
