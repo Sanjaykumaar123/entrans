@@ -1,0 +1,117 @@
+DAY 2 – Embedding Theory (BOW vs GloVe vs Word2Vec vs BERT)
+
+-------------------------------------------------------------
+1) Bag of Words (BOW)
+-------------------------------------------------------------
+- Converts text into simple word counts.
+- Example: "The phone is good" → {phone:1, good:1}
+- High dimensional, sparse vector.
+- Ignores meaning, context, grammar.
+- Works best on small/simple datasets.
+- Weak for semantic understanding.
+
+Pros:
+✔ Simple, fast, easy to implement  
+✔ Works well with Naive Bayes  
+
+Cons:
+✘ No meaning of words  
+✘ Cannot understand synonyms  
+✘ Context-independent  
+
+
+-------------------------------------------------------------
+2) TF-IDF (Term Frequency – Inverse Document Frequency)
+-------------------------------------------------------------
+- Improvement over BOW.
+- Reduces the weight of very common words (the, is, and).
+- Increases weight of important, unique words.
+
+Pros:
+✔ Better than BOW  
+✔ Good for classification  
+
+Cons:
+✘ Still context-blind  
+✘ Still sparse vectors  
+
+
+-------------------------------------------------------------
+3) Word2Vec (Google)
+-------------------------------------------------------------
+- Predicts a word based on its neighbors.
+- Words with similar meaning have similar vector values.
+- Two models: CBOW and Skip-gram.
+- Produces dense 300-dimensional vectors.
+
+Example:
+king - man + woman ≈ queen
+
+Pros:
+✔ Understands semantic relationships  
+✔ Dense compact vectors  
+✔ Good for downstream ML  
+
+Cons:
+✘ Same embedding for every context  
+✘ Cannot handle word sense (bank = river bank vs money bank)  
+
+
+-------------------------------------------------------------
+4) GloVe (Global Vectors for Word Representation)
+-------------------------------------------------------------
+- Trained on global co-occurrence statistics (Wikipedia, Common Crawl).
+- Similar to Word2Vec but uses matrix factorization.
+
+Pros:
+✔ Very strong pretrained embeddings  
+✔ Captures global statistical meaning  
+
+Cons:
+✘ Context independent  
+✘ Cannot handle polysemy  
+
+
+-------------------------------------------------------------
+5) BERT (Transformer-based Contextual Embedding)
+-------------------------------------------------------------
+- Bidirectional Encoder Representations from Transformers.
+- Uses self-attention mechanism.
+- Word meaning changes based on sentence context.
+
+Example:
+“I went to the bank to deposit money.”  
+“I sat on the bank of the river.”
+
+→ “bank” has different embeddings in each sentence!
+
+Pros:
+✔ Best modern NLP method  
+✔ Contextual meaning  
+✔ Works for classification, QA, NER, summarization  
+✔ Handles long context  
+
+Cons:
+✘ Heavy model  
+✘ Requires GPU for large tasks  
+
+
+-------------------------------------------------------------
+6) Summary Table
+-------------------------------------------------------------
+
+METHOD      | CONTEXTUAL | TYPE        | QUALITY | USE CASES
+--------------------------------------------------------------
+BOW         | No         | Sparse      | Low     | Simple text ML
+TF-IDF      | No         | Sparse      | Med     | Classification
+Word2Vec    | No         | Dense       | Good    | NLP ML tasks
+GloVe       | No         | Dense       | Good    | General embeddings
+BERT        | YES        | Dense       | Best    | All NLP tasks
+
+
+-------------------------------------------------------------
+7) Which is Best?
+-------------------------------------------------------------
+- For simple datasets → BOW / TF-IDF
+- For semantic understanding → Word2Vec / GloVe
+- For modern NLP → BERT (Transformer-based models)

@@ -1,0 +1,131 @@
+DAY 3 — ATTENTION MECHANISM (Transformer / BERT)
+
+------------------------------------------------------------
+1) What is Attention?
+------------------------------------------------------------
+Attention is a technique that allows a model to focus on the 
+most important words in a sentence when generating meaning.
+
+Instead of treating all words equally, attention learns:
+— Which words matter more
+— How strongly each word should influence others
+
+It assigns a "weight" (score) to every word-pair.
+
+Example:
+Sentence: "The cat sat on the mat"
+While processing "sat", attention may focus more on "cat".
+
+------------------------------------------------------------
+2) What is Self-Attention?
+------------------------------------------------------------
+Self-attention means the model looks at *the entire sentence*
+while processing each word.
+
+Each word looks at every other word and learns relationships.
+
+Example sentence:
+"Apple released a new iPhone."
+
+Self-attention can learn:
+- "Apple" relates to "released"
+- "iPhone" relates strongly to "new" and "Apple"
+
+This creates contextual word embeddings.
+
+------------------------------------------------------------
+3) Why is Self-Attention Important?
+------------------------------------------------------------
+It solves limitations of RNN/LSTM:
+- No vanishing gradient issues
+- Fast parallel computation
+- Understands long-range dependencies
+
+Example of long dependency:
+"The book that you gave me yesterday was amazing."
+
+"book" and "amazing" are far apart — attention handles this perfectly.
+
+------------------------------------------------------------
+4) How Self-Attention Works (Q, K, V)
+------------------------------------------------------------
+Each word is converted into 3 vectors:
+
+Q = Query  
+K = Key  
+V = Value  
+
+Self-attention steps:
+1. Compute similarity between Query of one word and Keys of all words
+2. Convert scores to probabilities (Softmax)
+3. Multiply probabilities with Values
+4. Sum them to get final context vector
+
+Formula:
+Attention(Q, K, V) = Softmax(QKᵀ / sqrt(d_k)) * V
+
+This gives a better representation of the word in context.
+
+------------------------------------------------------------
+5) Multi-Head Attention (MHA)
+------------------------------------------------------------
+Instead of one attention mechanism, transformers use MULTIPLE heads:
+- Each head learns a different kind of relationship
+- One head may focus on subjects
+- Another on verbs
+- Another on objects
+- Another on sentiment cues
+
+So the final representation is richer.
+
+------------------------------------------------------------
+6) Attention in BERT
+------------------------------------------------------------
+BERT uses self-attention in both directions:
+
+- Looks left (previous words)
+- Looks right (next words)
+
+This gives *contextual embeddings*:
+Same word gets different meaning depending on sentence.
+
+Example:
+"Bank of a river"  → 'bank' (nature)
+"Bank account"     → 'bank' (finance)
+
+BERT handles this using self-attention.
+
+------------------------------------------------------------
+7) Why Attention Beats RNNs
+------------------------------------------------------------
+✔ Global context understanding  
+✔ Parallel processing  
+✔ Captures long dependencies  
+✔ High accuracy  
+✔ Works for classification, NER, QA, summarization  
+
+------------------------------------------------------------
+8) Visual Summary
+------------------------------------------------------------
+
+Input sentence
+   ↓
+Embed words
+   ↓
+Create Q, K, V for each word
+   ↓
+Compute similarity scores between every pair of words
+   ↓
+Softmax → Attention weights
+   ↓
+Multiply weights with V
+   ↓
+Weighted sum → contextual embedding
+   ↓
+Feed to next transformer layer
+
+------------------------------------------------------------
+9) One-Line Summary
+------------------------------------------------------------
+"Attention tells the model how much each word should influence
+every other word to build smart, context-aware embeddings."
