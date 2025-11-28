@@ -1,54 +1,83 @@
-import React from 'react';
-import { LayoutDashboard, MessageSquare, FileText, Settings, Activity } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+    LayoutDashboard,
+    MessageSquare,
+    FileText,
+    Activity,
+    Settings
+} from "lucide-react";
 
 const Sidebar = () => {
     const location = useLocation();
 
-    const menuItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-        { icon: MessageSquare, label: 'Chat Agent', path: '/chat' },
-        { icon: Activity, label: 'Benchmark', path: '/benchmark' },
-        { icon: FileText, label: 'Reports', path: '/reports' },
+    const navItems = [
+        { label: "Dashboard", icon: LayoutDashboard, path: "/" },
+        { label: "Chat Agent", icon: MessageSquare, path: "/chat" },
+        { label: "Benchmark", icon: Activity, path: "/benchmark" },
+        { label: "Reports", icon: FileText, path: "/reports" },
     ];
 
     return (
-        <div className="h-screen w-64 bg-sidebar-purple text-white flex flex-col shadow-2xl fixed left-0 top-0">
-            <div className="p-6">
-                <h1 className="text-2xl font-bold tracking-wider">
-                    WRITE<span className="text-gradient-pink">BOT</span>
-                </h1>
-                <p className="text-xs text-gray-300 mt-1">AI News Intelligence</p>
-            </div>
+        <header
+            className="
+                fixed top-0 left-0 w-full z-50 
+        bg-gradient-to-r from-[#0a071d] via-[#120c3b] to-[#050816]
+        backdrop-blur-xl
+        shadow-[0_4px_25px_rgba(0,0,0,0.5)]
+        border-b border-transparent
+            "
+        >
+            <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 
-            <nav className="flex-1 px-4 space-y-2 mt-4">
-                {menuItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = location.pathname === item.path;
+                {/* LOGO */}
+                <Link to="/" className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold tracking-wide text-white">
+                        <span className="bg-gradient-to-r from-[#7B5CFF] to-[#FF50C8] bg-clip-text text-transparent">
+                            THINK
+                        </span>{" "}
+                        BOT
+                    </h1>
+                </Link>
 
-                    return (
-                        <Link
-                            key={item.path}
-                            to={item.path}
-                            className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${isActive
-                                    ? 'bg-white/10 text-white shadow-lg backdrop-blur-sm border border-white/10'
-                                    : 'text-gray-300 hover:bg-white/5 hover:text-white'
-                                }`}
-                        >
-                            <Icon size={20} />
-                            <span className="font-medium">{item.label}</span>
-                        </Link>
-                    );
-                })}
-            </nav>
+                {/* NAVIGATION */}
+                <nav className="flex items-center gap-6">
+                    {navItems.map(({ label, icon: Icon, path }) => {
+                        const isActive = location.pathname === path;
 
-            <div className="p-4 border-t border-white/10">
-                <Link to="/settings" className="flex items-center space-x-3 px-4 py-2 text-gray-400 hover:text-white cursor-pointer transition-colors">
-                    <Settings size={20} />
-                    <span>Settings</span>
+                        return (
+                            <Link
+                                key={path}
+                                to={path}
+                                className={`
+                                    flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all
+                                    ${
+                                        isActive
+                                            ? "bg-white/10 text-white border border-white/20 shadow-lg shadow-primary/30"
+                                            : "text-white/60 hover:text-white hover:bg-white/5"
+                                    }
+                                `}
+                            >
+                                <Icon size={18} className={isActive ? "text-primary" : "text-white/70"} />
+                                {label}
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                {/* SETTINGS BUTTON */}
+                <Link
+                    to="/settings"
+                    className="
+                        flex items-center gap-2 px-4 py-2 text-white/60 hover:text-white
+                        bg-white/5 hover:bg-white/10 rounded-xl transition-all
+                    "
+                >
+                    <Settings size={18} />
+                    <span className="hidden md:block">Settings</span>
                 </Link>
             </div>
-        </div>
+        </header>
     );
 };
 

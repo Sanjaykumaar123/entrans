@@ -1,6 +1,9 @@
 import sys
 import os
 import argparse
+from dotenv import load_dotenv
+load_dotenv()
+
 
 # Add project root (news_agent) to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
